@@ -1,17 +1,18 @@
 import math, time
 import random
 import requests
+import telebot
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 
 rsa_e = "010001"
 rsa_m = "008aed7e057fe8f14c73550b0e6467b023616ddc8fa91846d2613cdb7f7621e3cada4cd5d812d627af6b87727ade4e26d26208b7326815941492b2204c3167ab2d53df1e3a2c9153bdb7c8c2e968df97a5e7e01cc410f92c4c2c2fba529b3ee988ebc1fca99ff5119e036d732c368acf8beba01aa2fdafa45b21e4de4928d0d403"
 
-
 def log(s: str):
+    global output
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{timestamp}]\t{s}\n")
-
+    output = output + "[" + timestamp + "]" + s + "  " + "\n\n"
 
 def genRSAPasswd(passwd, e, m):
     #别问我为啥rsa加密要这么写，傻逼cas
@@ -141,7 +142,7 @@ def doReport(person):
             "jtgj": "",
             "jkzk": person["JKZK"],
             "jkqk": person["JKQK"],
-            "tw": str(round(random.uniform(36.3, 36.7), 1)),
+            "tw": str(round(random.uniform(35.8, 36.9), 1)),
             "sd": timeType,
             "bz": "",
             "_ext": "{}"
@@ -160,10 +161,14 @@ def doReport(person):
 
 if __name__ == '__main__':
     import sys
+    output = " "
     person = {
         "CASUsername": sys.argv[1],
         "CASPassword": sys.argv[2],
     }
+    token = sys.argv[3]
+    chat_id = sys.argv[4]
+    bot = telebot.TeleBot(token)
     requests.adapters.DEFAULT_RETRIES = 15
     sess = requests.Session()
     sess.keep_alive = False
@@ -175,7 +180,7 @@ if __name__ == '__main__':
         "Accept-Language":
         "zh-CN,zh;q=0.9",
         "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75"
+        "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3861.400 QQBrowser/10.7.4313.400"
     })
     res = DoSUESCasLogin(person["CASUsername"], person["CASPassword"], sess)
     if res:
@@ -186,5 +191,7 @@ if __name__ == '__main__':
     state, msg = doReport(person)
     if state:
         log("report success")
+        bot.send_message(chat_id, "体温上报成功" + output)
     else:
         log("report Fail\t" + msg)
+        bot.send_message(chat_id, "体温上报失败，请重新运行！")
