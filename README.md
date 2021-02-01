@@ -1,25 +1,40 @@
-# HealthInfoAutoReport
+# Auto-Temp-Report
 
-## Two ways
+**CAUTION: This repo is only for learning purposes, DO NOT use this repo for real health status reports. The author(s) will not be responsible if anything bad happens.**
 
-**Remind: First, u need post u tmp least 1 time.**
+**CAUTION: You need to report manually on the website at least once before using this tool.**
 
-### Through Remote Environment: Github Actions
+**WARNING: Make sure you can access Telegram API if you're using this tool on your local network.**
 
-1. star and fork this repo.
-2. set your own those 2 Actions secrets: NUM, PWD
-3. commit anything or wait actions auto run.
+Extra needs:
+1. Contact [BotFather](https://t.me/BotFather) to create an bot, get your bot token.
+2. Reply to your bot with any message, then access this link(change ***TOKEN*** to your own):
 
-### Through Local Environment: Python 3.6+
+https://api.telegram.org/bot***TOKEN***/getUpdates
 
-```powershell
+From here you'll see your chat_id. You'll need it later.
+
+### Requirement: Python 3.6+ and some extra packages:
+
+Arch Linux:
+```
+sudo pacman -S python-beautifulsoup4 python-requests
+yay -S python-pytelegrambotapi #From AUR, yay/other AUR tools needed
+```
+
+Other system with Python pip installed:
+```
 pip install requests
 pip install beautifulsoup4
 pip install lxml
+pip install pyTelegramBotAPI
 ```
 
-Run this:
-
-```powershell
-python actions.py account pwd
+One line:
 ```
+python actions.py $ACCOUNT $PASSWORD $TGBOT_TOKEN $CHAT_ID
+```
+
+Credits: [zsqw123](https://github.com/zsqw123/Automatic-Health-Card), [JLUZHAnalytica(Original Author)](https://github.com/JLUZHAnalytica/Automatic-Health-Card)
+
+Special Thanks: [F-T-Otaku](https://github.com/F-T-Otaku/Auto-Health-Report)
