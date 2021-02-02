@@ -13,6 +13,22 @@ def log(s: str):
     print(f"[{timestamp}]\t{s}")
 
 
+def lower_json(json_info):
+    if isinstance(json_info, dict):
+        for key in list(json_info.keys()):
+            if key.islower():
+                lower_json(json_info[key])
+            else:
+                key_lower = key.lower()
+                json_info[key_lower] = json_info[key]
+                del json_info[key]
+                lower_json(json_info[key_lower])
+
+    elif isinstance(json_info, list):
+        for item in json_info:
+            lower_json(item)
+
+
 def genRSAPasswd(passwd, e, m):
     # 别问我为啥rsa加密要这么写，傻逼cas
     # 参考https://www.cnblogs.com/himax/p/python_rsa_no_padding.html
@@ -84,7 +100,7 @@ def doReport(person):
     sess.headers.update(newHeader)
 
     time_now = datetime.utcnow()
-    time_start = datetime(2021, 2, 1, 0, 1)
+    time_start = datetime(2021, 1, 29, 0, 1)
 
     # 在这里你可以填写过去或者未来的日期(
     # timeType = "上午"
@@ -92,7 +108,6 @@ def doReport(person):
 
     while True:
         diff = time_start - time_now
-        log(diff)
         if (diff.days * 86400 + diff.seconds) > 0:
             break
         time_start += timedelta(hours=12)
@@ -115,38 +130,36 @@ def doReport(person):
         if len(resSecond.json()["list"]) == 0:
             return False, "GET LAST REPORT FAIL"
         person = resSecond.json()["list"][0]
-
+        lower_json(person)
         updateData = {
             "params": {
-                "id": person["ID"],
-                "sqrid": person["SQRID"],
-                "sqbmid": person["SQBMID"],
-                "rysf": person["RYSF"],
-                "sqrmc": person["SQRMC"],
-                "gh": person["GH"],
-                "sfzh": person["SFZH"],
-                "sqbmmc": person["SQBMMC"],
-                "xb": person["XB"],
-                "lxdh": person["LXDH"],
-                "nl": person["NL"],
+                "sqrid": person["sqrid"],
+                "sqbmid": person["sqbmid"],
+                "rysf": person["rysf"],
+                "sqrmc": person["sqrmc"],
+                "gh": person["gh"],
+                "sfzh": person["sfzh"],
+                "sqbmmc": person["sqbmmc"],
+                "xb": person["xb"],
+                "lxdh": person["lxdh"],
+                "nl": person["nl"],
                 "tjsj": now,
-                "xrywz": person["XRYWZ"],
-                "sheng": person["SHENG"],
-                "shi": person["SHI"],
-                "qu": person["QU"],
-                "jtdzinput": person["JTDZINPUT"],
-                "gj": "",
-                "jtgj": "",
-                "jkzk": person["JKZK"],
-                "jkqk": person["JKQK"],
+                "xrywz": person["xrywz"],
+                "sheng": person["sheng"],
+                "shi": person["shi"],
+                "qu": person["qu"],
+                "jtdzinput": person["jtdzinput"],
+                "gj": person["gj"],
+                "jtgj": person["jtgj"],
+                "jkzk": person["jkzk"],
+                "jkqk": person["jkqk"],
                 "tw": str(round(random.uniform(36.3, 36.7), 1)),
                 "sd": timeType,
-                "bz": "",
+                "bz": person["bz"],
                 "_ext": "{}"
             }
         }
-        log(updateData["params"]["gh"] + "\t" + "gentemp:" +
-            updateData["params"]["tw"])
+        log(updateData["params"]["gh"] + "\t" + "gentemp:" + updateData["params"]["tw"])
         url = "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.work.shgcd.jkxxcj.jkxxcj.saveOrUpdate.biz.ext"
         finalRes = sess.post(url, json=updateData)
         time.sleep(1)

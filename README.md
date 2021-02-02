@@ -2,7 +2,7 @@
 
 ## First, u need 2 bind u wx with u phone num
 
-**Remind: First, u need post u tmp least 1 time.**
+**Remind: First, u need post u temp least 1 time.**
 
 open wx, scan this:
 
@@ -43,3 +43,14 @@ Run this:
 ```powershell
 python actions.py account pwd
 ```
+## Notice
+
+- If u want 2 c your class completion, For example: 0313191, u can by fllowing link:
+```text
+https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/ajaxExcelByBh.jsp?bh=0313191
+
+this link is REALTIME.
+```
+
+- u need post u temp least 1 time.
+- u can run multi.py by same way in your local machine to complete your missing.

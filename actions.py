@@ -168,8 +168,7 @@ def doReport(person):
             "_ext": "{}"
         }
     }
-    log(updateData["params"]["gh"] + "\t" + "gentemp:" +
-        updateData["params"]["tw"])
+    log(updateData["params"]["gh"] + "\t" + "gentemp:" + updateData["params"]["tw"])
     url = "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.work.shgcd.jkxxcj.jkxxcj.saveOrUpdate.biz.ext"
     finalRes = sess.post(url, json=updateData)
     if finalRes.json()['result']["success"]:
