@@ -94,7 +94,7 @@ def doReport(person):
 
     # 在这里你可以填写过去或者未来的日期(
     # timeType = "上午"
-    # now = "2021-01-29 8:00"
+    # now = "2021-02-02 10:00"
 
     log("Time Peking: " + now)
     requestJsonFirst = {
@@ -152,6 +152,7 @@ def doReport(person):
     url = "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.work.shgcd.jkxxcj.jkxxcj.saveOrUpdate.biz.ext"
     finalRes = sess.post(url, json=updateData)
     if finalRes.json()['result']["success"]:
+        # log(finalRes.json())
         return True, None
     else:
         return False, "[" + finalRes.json(
