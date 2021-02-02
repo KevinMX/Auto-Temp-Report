@@ -154,7 +154,7 @@ def doReport(person):
                 "jtgj": person["jtgj"],
                 "jkzk": person["jkzk"],
                 "jkqk": person["jkqk"],
-                "tw": str(round(random.uniform(36.3, 36.7), 1)),
+                "tw": str(round(random.uniform(35.8, 36.9), 1)),
                 "sd": timeType,
                 "bz": person["bz"],
                 "_ext": "{}"
