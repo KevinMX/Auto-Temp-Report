@@ -1,18 +1,33 @@
 import math, time
 import random
 import requests
-import telebot
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 
 rsa_e = "010001"
 rsa_m = "008aed7e057fe8f14c73550b0e6467b023616ddc8fa91846d2613cdb7f7621e3cada4cd5d812d627af6b87727ade4e26d26208b7326815941492b2204c3167ab2d53df1e3a2c9153bdb7c8c2e968df97a5e7e01cc410f92c4c2c2fba529b3ee988ebc1fca99ff5119e036d732c368acf8beba01aa2fdafa45b21e4de4928d0d403"
 
+
 def log(s: str):
-    global output
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}]\t{s}\n")
-    output = output + "[" + timestamp + "]" + s + "  " + "\n\n"
+    print(f"[{timestamp}]\t{s}")
+
+
+def lower_json(json_info):
+    if isinstance(json_info, dict):
+        for key in list(json_info.keys()):
+            if key.islower():
+                lower_json(json_info[key])
+            else:
+                key_lower = key.lower()
+                json_info[key_lower] = json_info[key]
+                del json_info[key]
+                lower_json(json_info[key_lower])
+
+    elif isinstance(json_info, list):
+        for item in json_info:
+            lower_json(item)
+
 
 def genRSAPasswd(passwd, e, m):
     # 别问我为啥rsa加密要这么写，傻逼cas
@@ -48,22 +63,6 @@ def DoSUESCasLogin(username, password, sess):
         return False
 
 
-def lower_json(json_info):
-    if isinstance(json_info, dict):
-        for key in list(json_info.keys()):
-            if key.islower():
-                lower_json(json_info[key])
-            else:
-                key_lower = key.lower()
-                json_info[key_lower] = json_info[key]
-                del json_info[key]
-                lower_json(json_info[key_lower])
-
-    elif isinstance(json_info, list):
-        for item in json_info:
-            lower_json(item)
-
-
 def doReport(person):
     username = person["CASUsername"]
     password = person["CASPassword"]
@@ -91,7 +90,8 @@ def doReport(person):
         "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
         "Content-Type": "text/json",
         "Origin": "https://workflow.sues.edu.cn",
-        "Referer": "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/jkxxcj.jsp",
+        "Referer":
+            "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/jkxxcj.jsp",
         "Sec-Fetch-Dest": "empty",
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "same-origin",
@@ -99,95 +99,84 @@ def doReport(person):
     }
     sess.headers.update(newHeader)
 
-    time_utc = datetime.utcnow()
-    time_peking = (time_utc + timedelta(hours=8))
-
-    if time_peking.hour % 24 < 12:
-        timeType = "上午"
-    else:
-        timeType = "下午"
-    now = time_peking.strftime("%Y-%m-%d %H:%M")
+    time_now = datetime.utcnow()
+    time_start = datetime(2021, 1, 29, 0, 1)
 
     # 在这里你可以填写过去或者未来的日期(
     # timeType = "上午"
     # now = "2021-02-02 10:00"
 
-    log("Time Peking: " + now + " " + timeType)
-
-    # 1
-    requestJsonFirst = {
-        "params": {
-            "empcode": username
-        },
-        "querySqlId": "com.sudytech.work.shgcd.jkxxcj.jkxxcj.queryEmp"
-    }
-    sess.post(
-        "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.portalone.base.db.queryBySqlWithoutPagecond.biz.ext",
-        json=requestJsonFirst)
-
-    # 获取上一次的数据
-    requestLastJson = {
-        "params": {
-            "empcode": username
-        },
-        "querySqlId": "com.sudytech.work.shgcd.jkxxcj.jkxxcj.queryNear"
-    }
-    resLast = sess.post(
-        "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.portalone.base.db.queryBySqlWithoutPagecond.biz.ext",
-        json=requestLastJson)
-
-    if len(resLast.json()["list"]) == 0:
-        return False, "GET LAST REPORT FAIL"
-    person = resLast.json()["list"][0]
-    lower_json(person)
-    # 上报
-    updateData = {
-        "params": {
-            "sqrid": person["sqrid"],
-            "sqbmid": person["sqbmid"],
-            "rysf": person["rysf"],
-            "sqrmc": person["sqrmc"],
-            "gh": person["gh"],
-            "sfzh": person["sfzh"],
-            "sqbmmc": person["sqbmmc"],
-            "xb": person["xb"],
-            "lxdh": person["lxdh"],
-            "nl": person["nl"],
-            "tjsj": now,
-            "xrywz": person["xrywz"],
-            "sheng": person["sheng"],
-            "shi": person["shi"],
-            "qu": person["qu"],
-            "jtdzinput": person["jtdzinput"],
-            "gj": person["gj"],
-            "jtgj": person["jtgj"],
-            "jkzk": person["jkzk"],
-            "jkqk": person["jkqk"],
-            "tw": str(round(random.uniform(35.8, 36.9), 1)),
-            "sd": timeType,
-            "bz": person["bz"],
-            "_ext": "{}"
+    while True:
+        diff = time_start - time_now
+        if (diff.days * 86400 + diff.seconds) > 0:
+            break
+        time_start += timedelta(hours=12)
+        up_time = time_start + timedelta(minutes=int(random.uniform(1, 30)))
+        if up_time.hour < 12:
+            timeType = "上午"
+        else:
+            timeType = "下午"
+        now = up_time.strftime("%Y-%m-%d %H:%M")
+        log("Time Peking: " + now + " " + timeType)
+        requestJsonSecond = {
+            "params": {
+                "empcode": username
+            },
+            "querySqlId": "com.sudytech.work.shgcd.jkxxcj.jkxxcj.queryNear"
         }
-    }
-    log(updateData["params"]["gh"] + "\t" + "gentemp:" + updateData["params"]["tw"])
-    url = "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.work.shgcd.jkxxcj.jkxxcj.saveOrUpdate.biz.ext"
-    finalRes = sess.post(url, json=updateData)
-    if finalRes.json()['result']["success"]:
-        return True, None
-    else:
-        return False, "[" + finalRes.json()['result']['errorcode'] + "]" + finalRes.json()['result']['msg']
+        resSecond = sess.post(
+            "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.portalone.base.db.queryBySqlWithoutPagecond.biz.ext",
+            json=requestJsonSecond)
+
+        if len(resSecond.json()["list"]) == 0:
+            return False, "GET LAST REPORT FAIL"
+        person = resSecond.json()["list"][0]
+        lower_json(person)
+        updateData = {
+            "params": {
+                "sqrid": person["sqrid"],
+                "sqbmid": person["sqbmid"],
+                "rysf": person["rysf"],
+                "sqrmc": person["sqrmc"],
+                "gh": person["gh"],
+                "sfzh": person["sfzh"],
+                "sqbmmc": person["sqbmmc"],
+                "xb": person["xb"],
+                "lxdh": person["lxdh"],
+                "nl": person["nl"],
+                "tjsj": now,
+                "xrywz": person["xrywz"],
+                "sheng": person["sheng"],
+                "shi": person["shi"],
+                "qu": person["qu"],
+                "jtdzinput": person["jtdzinput"],
+                "gj": person["gj"],
+                "jtgj": person["jtgj"],
+                "jkzk": person["jkzk"],
+                "jkqk": person["jkqk"],
+                "tw": str(round(random.uniform(36.3, 36.7), 1)),
+                "sd": timeType,
+                "bz": person["bz"],
+                "_ext": "{}"
+            }
+        }
+        log(updateData["params"]["gh"] + "\t" + "gentemp:" + updateData["params"]["tw"])
+        url = "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.work.shgcd.jkxxcj.jkxxcj.saveOrUpdate.biz.ext"
+        finalRes = sess.post(url, json=updateData)
+        time.sleep(1)
+        if finalRes.json()['result']["success"]:
+            log("report sucess")
+        else:
+            log("[" + finalRes.json()['result']['errorcode'] + "]" + finalRes.json()['result']['msg'])
 
 
 if __name__ == '__main__':
     import sys
-    output = " "
+
     person = {
-        "CASUsername": sys.argv[1],
-        "CASPassword": sys.argv[2],
+        "CASUsername": sys.argv[1],  # 其实这里你可以填你自己的, 但别上传git
+        "CASPassword": sys.argv[2],  # 其实这里你可以填你自己的, 但别上传git
     }
-    token = sys.argv[3]
-    chat_id = sys.argv[4]
-    bot = telebot.TeleBot(token)
     requests.adapters.DEFAULT_RETRIES = 15
     sess = requests.Session()
     sess.keep_alive = False
@@ -199,7 +188,7 @@ if __name__ == '__main__':
         "Accept-Language":
             "zh-CN,zh;q=0.9",
         "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3861.400 QQBrowser/10.7.4313.400"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36 Edg/87.0.664.75"
     })
     res = DoSUESCasLogin(person["CASUsername"], person["CASPassword"], sess)
     if res:
@@ -207,10 +196,4 @@ if __name__ == '__main__':
     else:
         log("CAS login test FAIL")
         quit()
-    state, msg = doReport(person)
-    if state:
-        log("report success")
-        bot.send_message(chat_id, "体温上报成功" + output)
-    else:
-        log("report Fail\t" + msg)
-        bot.send_message(chat_id, "体温上报失败，请重新运行！")
+    doReport(person)
