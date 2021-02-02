@@ -54,3 +54,4 @@ this link is REALTIME.
 
 - u need post u temp least 1 time.
 - u can run `multi.py` by same way in your local machine to complete your missing.
+- Using this project means you agree to [this](NOTICE.md)
