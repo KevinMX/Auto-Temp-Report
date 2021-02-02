@@ -47,22 +47,6 @@ def DoSUESCasLogin(username, password, sess):
         return False
 
 
-def lower_json(json_info):
-    if isinstance(json_info, dict):
-        for key in list(json_info.keys()):
-            if key.islower():
-                lower_json(json_info[key])
-            else:
-                key_lower = key.lower()
-                json_info[key_lower] = json_info[key]
-                del json_info[key]
-                lower_json(json_info[key_lower])
-
-    elif isinstance(json_info, list):
-        for item in json_info:
-            lower_json(item)
-
-
 def doReport(person):
     username = person["CASUsername"]
     password = person["CASPassword"]
@@ -90,7 +74,8 @@ def doReport(person):
         "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
         "Content-Type": "text/json",
         "Origin": "https://workflow.sues.edu.cn",
-        "Referer": "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/jkxxcj.jsp",
+        "Referer":
+            "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/jkxxcj.jsp",
         "Sec-Fetch-Dest": "empty",
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "same-origin",
@@ -98,92 +83,85 @@ def doReport(person):
     }
     sess.headers.update(newHeader)
 
-    time_utc = datetime.utcnow()
-    time_peking = (time_utc + timedelta(hours=8))
-
-    if time_peking.hour % 24 < 12:
-        timeType = "上午"
-    else:
-        timeType = "下午"
-    now = time_peking.strftime("%Y-%m-%d %H:%M")
+    time_now = datetime.utcnow()
+    time_start = datetime(2021, 2, 1, 0, 1)
 
     # 在这里你可以填写过去或者未来的日期(
     # timeType = "上午"
     # now = "2021-02-02 10:00"
 
-    log("Time Peking: " + now + " " + timeType)
-
-    # 1
-    requestJsonFirst = {
-        "params": {
-            "empcode": username
-        },
-        "querySqlId": "com.sudytech.work.shgcd.jkxxcj.jkxxcj.queryEmp"
-    }
-    sess.post(
-        "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.portalone.base.db.queryBySqlWithoutPagecond.biz.ext",
-        json=requestJsonFirst)
-
-    # 获取上一次的数据
-    requestLastJson = {
-        "params": {
-            "empcode": username
-        },
-        "querySqlId": "com.sudytech.work.shgcd.jkxxcj.jkxxcj.queryNear"
-    }
-    resLast = sess.post(
-        "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.portalone.base.db.queryBySqlWithoutPagecond.biz.ext",
-        json=requestLastJson)
-
-    if len(resLast.json()["list"]) == 0:
-        return False, "GET LAST REPORT FAIL"
-    person = resLast.json()["list"][0]
-    lower_json(person)
-    # 上报
-    updateData = {
-        "params": {
-            "sqrid": person["sqrid"],
-            "sqbmid": person["sqbmid"],
-            "rysf": person["rysf"],
-            "sqrmc": person["sqrmc"],
-            "gh": person["gh"],
-            "sfzh": person["sfzh"],
-            "sqbmmc": person["sqbmmc"],
-            "xb": person["xb"],
-            "lxdh": person["lxdh"],
-            "nl": person["nl"],
-            "tjsj": now,
-            "xrywz": person["xrywz"],
-            "sheng": person["sheng"],
-            "shi": person["shi"],
-            "qu": person["qu"],
-            "jtdzinput": person["jtdzinput"],
-            "gj": person["gj"],
-            "jtgj": person["jtgj"],
-            "jkzk": person["jkzk"],
-            "jkqk": person["jkqk"],
-            "tw": str(round(random.uniform(36.3, 36.7), 1)),
-            "sd": timeType,
-            "bz": person["bz"],
-            "_ext": "{}"
+    while True:
+        diff = time_start - time_now
+        log(diff)
+        if (diff.days * 86400 + diff.seconds) > 0:
+            break
+        time_start += timedelta(hours=12)
+        if time_start.hour < 12:
+            timeType = "上午"
+        else:
+            timeType = "下午"
+        now = time_start.strftime("%Y-%m-%d %H:%M")
+        log("Time Peking: " + now + " " + timeType)
+        requestJsonSecond = {
+            "params": {
+                "empcode": username
+            },
+            "querySqlId": "com.sudytech.work.shgcd.jkxxcj.jkxxcj.queryNear"
         }
-    }
-    log(updateData["params"]["gh"] + "\t" + "gentemp:" +
-        updateData["params"]["tw"])
-    url = "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.work.shgcd.jkxxcj.jkxxcj.saveOrUpdate.biz.ext"
-    finalRes = sess.post(url, json=updateData)
-    if finalRes.json()['result']["success"]:
-        return True, None
-    else:
-        return False, "[" + finalRes.json()['result']['errorcode'] + "]" + finalRes.json()['result']['msg']
+        resSecond = sess.post(
+            "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.portalone.base.db.queryBySqlWithoutPagecond.biz.ext",
+            json=requestJsonSecond)
+
+        if len(resSecond.json()["list"]) == 0:
+            return False, "GET LAST REPORT FAIL"
+        person = resSecond.json()["list"][0]
+
+        updateData = {
+            "params": {
+                "id": person["ID"],
+                "sqrid": person["SQRID"],
+                "sqbmid": person["SQBMID"],
+                "rysf": person["RYSF"],
+                "sqrmc": person["SQRMC"],
+                "gh": person["GH"],
+                "sfzh": person["SFZH"],
+                "sqbmmc": person["SQBMMC"],
+                "xb": person["XB"],
+                "lxdh": person["LXDH"],
+                "nl": person["NL"],
+                "tjsj": now,
+                "xrywz": person["XRYWZ"],
+                "sheng": person["SHENG"],
+                "shi": person["SHI"],
+                "qu": person["QU"],
+                "jtdzinput": person["JTDZINPUT"],
+                "gj": "",
+                "jtgj": "",
+                "jkzk": person["JKZK"],
+                "jkqk": person["JKQK"],
+                "tw": str(round(random.uniform(36.3, 36.7), 1)),
+                "sd": timeType,
+                "bz": "",
+                "_ext": "{}"
+            }
+        }
+        log(updateData["params"]["gh"] + "\t" + "gentemp:" +
+            updateData["params"]["tw"])
+        url = "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/com.sudytech.work.shgcd.jkxxcj.jkxxcj.saveOrUpdate.biz.ext"
+        finalRes = sess.post(url, json=updateData)
+        time.sleep(1)
+        if finalRes.json()['result']["success"]:
+            log("report sucess")
+        else:
+            log("[" + finalRes.json()['result']['errorcode'] + "]" + finalRes.json()['result']['msg'])
 
 
 if __name__ == '__main__':
     import sys
 
     person = {
-        "CASUsername": sys.argv[1],
-        "CASPassword": sys.argv[2],
+        "CASUsername": sys.argv[1],  # 其实这里你可以填你自己的, 但别上传git
+        "CASPassword": sys.argv[2],  # 其实这里你可以填你自己的, 但别上传git
     }
     requests.adapters.DEFAULT_RETRIES = 15
     sess = requests.Session()
@@ -204,8 +182,4 @@ if __name__ == '__main__':
     else:
         log("CAS login test FAIL")
         quit()
-    state, msg = doReport(person)
-    if state:
-        log("report success")
-    else:
-        log("report Fail\t" + msg)
+    doReport(person)
