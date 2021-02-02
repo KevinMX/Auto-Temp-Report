@@ -111,11 +111,12 @@ def doReport(person):
         if (diff.days * 86400 + diff.seconds) > 0:
             break
         time_start += timedelta(hours=12)
-        if time_start.hour < 12:
+        up_time = time_start + timedelta(minutes=int(random.uniform(1, 30)))
+        if up_time.hour < 12:
             timeType = "上午"
         else:
             timeType = "下午"
-        now = time_start.strftime("%Y-%m-%d %H:%M")
+        now = up_time.strftime("%Y-%m-%d %H:%M")
         log("Time Peking: " + now + " " + timeType)
         requestJsonSecond = {
             "params": {
