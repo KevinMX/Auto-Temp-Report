@@ -49,9 +49,9 @@ python actions.py account pwd
 ```text
 https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/ajaxExcelByBh.jsp?bh=0313191
 
-this link is REALTIME.
+this link above is REALTIME.
 ```
 
 - u need post u temp least 1 time.
-- u can run `multi.py` by same way in your local machine to complete your missing.
+- u can run `multi.py` by same way on your local machine to complete your missing.
 - Using this project means you agree to [this](NOTICE.md)
