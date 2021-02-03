@@ -12,18 +12,22 @@ Extra needs:
 
 https://api.telegram.org/bot***TOKEN***/getUpdates
 
-From here you'll see your chat_id. You'll need it later.
+From here you'll see your **chat id**, which, looks like this:
 
-### Requirement: Python 3.6+ and some extra packages:
+`"chat":{"id":$CHAT_ID}"` 
+
+You'll need it later.
+
+### Requirements: Python 3.6+ and some extra packages:
 
 Arch Linux:
-```
-sudo pacman -S python-beautifulsoup4 python-requests
+```powershell
+sudo pacman -S python python-beautifulsoup4 python-requests
 yay -S python-pytelegrambotapi #From AUR, yay/other AUR tools needed
 ```
 
-Other system with Python pip installed:
-```
+All systems with Python pip installed:
+```powershell
 pip install requests
 pip install beautifulsoup4
 pip install lxml
@@ -31,7 +35,7 @@ pip install pyTelegramBotAPI
 ```
 
 One line:
-```
+```powershell
 python actions.py $ACCOUNT $PASSWORD $TGBOT_TOKEN $CHAT_ID
 ```
 
