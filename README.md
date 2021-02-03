@@ -1,5 +1,7 @@
 # HealthInfoAutoReport
 
+[![构建状态](https://zsqw123.coding.net/badges/autotmp/job/483170/build.svg)](https://zsqw123.coding.net/p/autotmp/ci/job)
+
 ## First, u need 2 bind u wx with u phone num
 
 **Remind: First, u need post u temp least 1 time.**
