@@ -83,15 +83,14 @@ def doReport(person):
     if not res:
         return False, "LOGIN FAIL"
     url = "https://cas.sues.edu.cn/cas/login?service=https%3A%2F%2Fworkflow.sues.edu.cn%2Fdefault%2Fwork%2Fshgcd%2Fjkxxcj%2Fjkxxcj.jsp"
-    res = sess.get(url)  # cas 跳转登录
+    sess.get(url)
     newHeader = {
         "Accept": "*/*",
         "Accept-Encoding": "gzip, deflate, br",
         "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
         "Content-Type": "text/json",
         "Origin": "https://workflow.sues.edu.cn",
-        "Referer":
-            "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/jkxxcj.jsp",
+        "Referer": "https://workflow.sues.edu.cn/default/work/shgcd/jkxxcj/jkxxcj.jsp",
         "Sec-Fetch-Dest": "empty",
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "same-origin",
